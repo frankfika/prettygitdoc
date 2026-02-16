@@ -52,10 +52,10 @@ docs/                    # 项目文档（产品、技能等）
 - 版本发布：打 `v*.*.*` 标签将自动创建 Release 草稿并附上构建产物（见 `.github/workflows/release.yml`）
 
 ## 截图
-> 将截图放入 `docs/assets/`，下方路径为占位，可替换为你的实际文件。
-- 首页与目录：`docs/assets/home.png`
-- PDF/Docx 预览：`docs/assets/preview.png`
-- PWA 安装引导：`docs/assets/pwa-install.png`
+- 示例截图位于 `docs/assets/`
+  - 首页与目录：docs/assets/home.png
+  - 设置页：docs/assets/settings.png
+  - 更多截图可通过 `npm run screens` 自动采集（需本地生产服务运行）
 
 ## 文档与路线
 - 产品文档：[docs/product.md](./docs/product.md)
