@@ -4,6 +4,8 @@ import "./globals.css";
 import { ToastContainer } from "@/components/ui/Toast";
 import RegisterPWA from "@/components/pwa/RegisterPWA";
 
+const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
   variable: "--font-geist-sans",
@@ -18,7 +20,7 @@ const geistMono = localFont({
 export const metadata: Metadata = {
   title: "Pretty GitDoc - Markdown 阅读器",
   description: "从 GitHub 仓库读取 Markdown 文件，提供精美的阅读体验",
-  manifest: "/manifest.json",
+  manifest: `${BASE_PATH}/manifest.json`,
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
@@ -44,7 +46,7 @@ export default function RootLayout({
   return (
     <html lang="zh-CN" suppressHydrationWarning>
       <head>
-        <link rel="apple-touch-icon" href="/icon-192.png" />
+        <link rel="apple-touch-icon" href={`${BASE_PATH}/icon-192.png`} />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white dark:bg-black`}

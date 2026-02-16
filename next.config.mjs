@@ -1,7 +1,8 @@
 import withSerwistInit from "@serwist/next";
 
 const isDev = process.env.NODE_ENV === "development";
-const basePath = isDev ? "" : "/prettygitdoc";
+const isTauri = !!process.env.TAURI_BUILD;
+const basePath = isDev || isTauri ? "" : "/prettygitdoc";
 const withSerwist = withSerwistInit({
   swSrc: "app/sw.ts",
   swDest: "public/sw.js",
@@ -27,6 +28,9 @@ const nextConfig = {
     ],
   },
   ...(basePath ? { basePath } : {}),
+  env: {
+    NEXT_PUBLIC_BASE_PATH: basePath,
+  },
   publicRuntimeConfig: {
     BASE_PATH: basePath,
   },
