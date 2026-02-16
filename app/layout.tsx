@@ -15,13 +15,13 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "GitHub Reader - Markdown 阅读器",
+  title: "Pretty GitDoc - Markdown 阅读器",
   description: "从 GitHub 仓库读取 Markdown 文件，提供精美的阅读体验",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "GitHub Reader",
+    title: "Pretty GitDoc",
   },
 };
 

@@ -185,16 +185,51 @@ export async function syncArticles(
   return result;
 }
 
+// Check if a file path matches any exclude pattern
+function shouldExcludeFile(filePath: string, excludePatterns: string[]): boolean {
+  const fileName = filePath.split('/').pop() || filePath;
+
+  for (const pattern of excludePatterns) {
+    if (pattern.startsWith('*.')) {
+      // Extension pattern like "*.png"
+      const ext = pattern.slice(1); // ".png"
+      if (fileName.endsWith(ext)) {
+        return true;
+      }
+    } else if (pattern === '.*') {
+      // Hidden files pattern
+      if (fileName.startsWith('.')) {
+        return true;
+      }
+    } else if (pattern.includes('*')) {
+      // Wildcard pattern - simple implementation
+      const regex = new RegExp('^' + pattern.replace(/\*/g, '.*') + '$');
+      if (regex.test(fileName)) {
+        return true;
+      }
+    } else {
+      // Exact match
+      if (fileName === pattern) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
 // Build article tree from flat list
-export function buildArticleTree(articles: Article[], basePath?: string): ArticleTree[] {
+export function buildArticleTree(articles: Article[], basePath?: string, excludePatterns: string[] = []): ArticleTree[] {
   const root: ArticleTree[] = [];
   const map = new Map<string, ArticleTree>();
 
   // Strip basePath prefix from article paths for tree display
   const prefix = basePath ? (basePath.endsWith("/") ? basePath : basePath + "/") : "";
 
-  // Sort articles by path
-  const sorted = [...articles].sort((a, b) => a.path.localeCompare(b.path));
+  // Sort articles by path and filter out excluded files
+  const sorted = [...articles]
+    .filter(article => !shouldExcludeFile(article.path, excludePatterns))
+    .sort((a, b) => a.path.localeCompare(b.path));
 
   for (const article of sorted) {
     // Remove the configured path prefix so the tree starts at the target folder
@@ -248,7 +283,7 @@ export function buildArticleTree(articles: Article[], basePath?: string): Articl
 }
 
 // Build repo article trees
-export function buildRepoArticleTrees(articles: Article[], repos: RepoConfig[]): RepoArticleTree[] {
+export function buildRepoArticleTrees(articles: Article[], repos: RepoConfig[], excludePatterns: string[] = []): RepoArticleTree[] {
   const articlesByRepo = new Map<string, Article[]>();
 
   // Group articles by repo
@@ -262,7 +297,7 @@ export function buildRepoArticleTrees(articles: Article[], repos: RepoConfig[]):
   return repos.map((repo) => ({
     repoId: repo.id,
     repoName: repo.name,
-    tree: buildArticleTree(articlesByRepo.get(repo.id) || [], repo.path),
+    tree: buildArticleTree(articlesByRepo.get(repo.id) || [], repo.path, excludePatterns),
     expanded: true,
   }));
 }

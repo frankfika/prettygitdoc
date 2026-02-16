@@ -22,6 +22,9 @@ import { EmptyState } from "./EmptyState";
 import { SidebarSkeleton } from "./Skeleton";
 import { ConfirmModal } from "@/components/ui/Modal";
 
+const INDENT_STEP = 20;
+const FILE_ICON_COMP = 22;
+
 interface TreeNodeProps {
   node: ArticleTree;
   depth?: number;
@@ -49,7 +52,7 @@ function TreeNode({ node, depth = 0, repoId }: TreeNodeProps) {
             ? "bg-gray-900/5 dark:bg-white/10 text-gray-900 dark:text-white font-medium"
             : "text-gray-600 dark:text-gray-400 hover:bg-gray-900/5 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-gray-200"
         }`}
-        style={{ paddingLeft: `${depth * 12 + 12}px` }}
+        style={{ paddingLeft: `${depth * INDENT_STEP + 12 + FILE_ICON_COMP}px` }}
       >
         <FileIcon className="w-3.5 h-3.5 flex-shrink-0 opacity-50" />
         <span className="truncate">{node.article.title}</span>
@@ -62,7 +65,7 @@ function TreeNode({ node, depth = 0, repoId }: TreeNodeProps) {
       <button
         onClick={() => setExpanded(!expanded)}
         className="flex items-center gap-2 py-1.5 px-3 w-full text-[13px] text-gray-500 dark:text-gray-400 hover:bg-gray-900/5 dark:hover:bg-white/5 hover:text-gray-700 dark:hover:text-gray-300 rounded-lg transition-all duration-200"
-        style={{ paddingLeft: `${depth * 12 + 12}px` }}
+        style={{ paddingLeft: `${depth * INDENT_STEP + 12}px` }}
       >
         {expanded ? (
           <ChevronDown className="w-3.5 h-3.5 flex-shrink-0 opacity-40" />
@@ -279,17 +282,19 @@ export function Sidebar() {
         />
       )}
 
-      {/* Touch area for swipe detection */}
-      <div
-        className="fixed left-0 top-0 bottom-0 w-8 z-30 lg:hidden"
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-      />
+      {/* Touch area for swipe detection - only when sidebar is closed on mobile */}
+      {!sidebarOpen && (
+        <div
+          className="fixed left-0 top-0 bottom-0 w-8 z-30 lg:hidden"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        />
+      )}
 
-      {/* Sidebar */}
+      {/* Sidebar - hidden on mobile unless sidebarOpen, always visible on lg+ */}
       <aside
-        className={`fixed lg:sticky top-0 left-0 h-screen w-72 bg-gray-50/80 dark:bg-gray-900/80 backdrop-blur-2xl border-r border-gray-200/50 dark:border-gray-800/50 z-50 transform transition-transform duration-300 ease-out ${
+        className={`fixed lg:sticky top-0 left-0 h-screen w-72 bg-gray-50/80 dark:bg-gray-900/80 backdrop-blur-2xl border-r border-gray-200/50 dark:border-gray-800/50 z-50 lg:z-10 transition-transform duration-300 ease-out lg:transition-none ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         }`}
         onTouchStart={handleTouchStart}
@@ -304,7 +309,7 @@ export function Sidebar() {
                 <Book className="w-4 h-4 text-white dark:text-gray-900" />
               </div>
               <span className="font-semibold text-gray-900 dark:text-white text-[15px] tracking-tight">
-                GitHub Reader
+                Pretty GitDoc
               </span>
             </Link>
           </div>

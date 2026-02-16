@@ -69,4 +69,5 @@ export interface AppSettings {
   lineHeight: number;
   lastSyncAt?: string;
   activeRepoId?: string;
+  excludePatterns: string[]; // File patterns to exclude (e.g., "*.png", ".*", "*.pdf")
 }

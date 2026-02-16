@@ -1,8 +1,12 @@
 import withSerwistInit from "@serwist/next";
 
+const isDev = process.env.NODE_ENV === "development";
 const withSerwist = withSerwistInit({
   swSrc: "app/sw.ts",
   swDest: "public/sw.js",
+  // Avoid SW interference in development
+  disable: isDev,
+  register: !isDev,
 });
 
 /** @type {import('next').NextConfig} */

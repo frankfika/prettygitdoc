@@ -1,7 +1,7 @@
 {
-  "name": "GitHub Reader - Markdown 阅读器",
-  "short_name": "GitHub Reader",
-  "description": "从 GitHub 仓库读取 Markdown 文件，提供精美的阅读体验",
+  "name": "Pretty GitDoc - Markdown 阅读器",
+  "short_name": "Pretty GitDoc",
+  "description": "从 GitHub 仓库读取 GitHub 文档，提供精美的阅读体验",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",

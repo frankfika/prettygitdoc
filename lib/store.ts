@@ -48,46 +48,12 @@ interface ReaderState {
   getAdjacentArticles: (id: string) => { prev: Article | null; next: Article | null };
 }
 
-const defaultRepos: RepoConfig[] = [
-  {
-    id: "react-docs",
-    name: "React 文档",
-    owner: "facebook",
-    repo: "react",
-    branch: "main",
-    path: "docs",
-  },
-  {
-    id: "vue-docs",
-    name: "Vue.js 文档",
-    owner: "vuejs",
-    repo: "core",
-    branch: "main",
-    path: "packages/compiler-core",
-  },
-  {
-    id: "typescript-docs",
-    name: "TypeScript 文档",
-    owner: "microsoft",
-    repo: "TypeScript",
-    branch: "main",
-    path: "doc",
-  },
-  {
-    id: "rust-docs",
-    name: "Rust 文档",
-    owner: "rust-lang",
-    repo: "rust",
-    branch: "master",
-    path: "src/doc",
-  },
-];
-
 const defaultSettings: AppSettings = {
-  repos: defaultRepos,
+  repos: [],
   theme: "system",
   fontSize: 16,
   lineHeight: 1.6,
+  excludePatterns: [".*", "*.png", "*.jpg", "*.jpeg", "*.gif", "*.svg", "*.ico"],
 };
 
 export const useReaderStore = create<ReaderState>()(
@@ -102,13 +68,13 @@ export const useReaderStore = create<ReaderState>()(
       syncingRepoId: null,
       syncProgress: null,
       error: null,
-      sidebarOpen: false,
+      sidebarOpen: true,
       settings: defaultSettings,
 
       // Actions
       setArticles: (articles) => {
         const { settings } = get();
-        const trees = buildRepoArticleTrees(articles, settings.repos);
+        const trees = buildRepoArticleTrees(articles, settings.repos, settings.excludePatterns);
         set({ articles, repoArticleTrees: trees });
       },
 
@@ -134,14 +100,15 @@ export const useReaderStore = create<ReaderState>()(
           const articles = await getAllCachedArticles();
           const savedRepos = await getRepoConfigs();
           const repos = savedRepos.length > 0 ? savedRepos : get().settings.repos;
+          const { settings } = get();
 
-          const trees = buildRepoArticleTrees(articles, repos);
+          const trees = buildRepoArticleTrees(articles, repos, settings.excludePatterns);
 
           set({
             articles,
             repoArticleTrees: trees,
             settings: {
-              ...get().settings,
+              ...settings,
               repos,
             },
           });
@@ -168,7 +135,7 @@ export const useReaderStore = create<ReaderState>()(
           const result = await cacheSyncArticles(newArticles, config);
           const articles = await getAllCachedArticles();
           const { settings } = get();
-          const trees = buildRepoArticleTrees(articles, settings.repos);
+          const trees = buildRepoArticleTrees(articles, settings.repos, settings.excludePatterns);
 
           set({ articles, repoArticleTrees: trees });
           return result;
@@ -213,7 +180,7 @@ export const useReaderStore = create<ReaderState>()(
       addRepo: (repo) => {
         const { settings, articles } = get();
         const updatedRepos = [...settings.repos, repo];
-        const trees = buildRepoArticleTrees(articles, updatedRepos);
+        const trees = buildRepoArticleTrees(articles, updatedRepos, settings.excludePatterns);
         set({
           settings: { ...settings, repos: updatedRepos },
           repoArticleTrees: trees,
@@ -224,7 +191,7 @@ export const useReaderStore = create<ReaderState>()(
         const { settings, articles } = get();
         const updatedRepos = settings.repos.filter((r) => r.id !== repoId);
         const updatedArticles = articles.filter((a) => a.repoId !== repoId);
-        const trees = buildRepoArticleTrees(updatedArticles, updatedRepos);
+        const trees = buildRepoArticleTrees(updatedArticles, updatedRepos, settings.excludePatterns);
         set({
           settings: { ...settings, repos: updatedRepos },
           articles: updatedArticles,
@@ -237,7 +204,7 @@ export const useReaderStore = create<ReaderState>()(
         const updatedRepos = settings.repos.map((r) =>
           r.id === repoId ? { ...r, ...repoUpdate } : r
         );
-        const trees = buildRepoArticleTrees(articles, updatedRepos);
+        const trees = buildRepoArticleTrees(articles, updatedRepos, settings.excludePatterns);
         set({
           settings: { ...settings, repos: updatedRepos },
           repoArticleTrees: trees,

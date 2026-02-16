@@ -95,8 +95,13 @@ export default function SettingsPage() {
 
   const handleEdit = (repo: RepoConfig) => {
     setEditingRepo(repo.id);
+    // Extract folder name from path for display name
+    const folderName = repo.path
+      ? decodeURIComponent(repo.path.split('/').pop() || repo.path)
+      : "";
+
     setFormData({
-      name: repo.name,
+      name: folderName || repo.name,
       owner: repo.owner,
       repo: repo.repo,
       branch: repo.branch,
@@ -116,6 +121,11 @@ export default function SettingsPage() {
 
     const parsed = parseGitHubUrl(url);
     if (parsed) {
+      // Extract folder name from path for display name
+      const folderName = parsed.path
+        ? decodeURIComponent(parsed.path.split('/').pop() || parsed.path)
+        : "";
+
       setFormData((prev) => ({
         ...prev,
         url,
@@ -123,12 +133,12 @@ export default function SettingsPage() {
         repo: parsed.repo,
         branch: parsed.branch,
         path: parsed.path,
-        name: prev.name || parsed.repo,
+        name: folderName || prev.name || parsed.repo,
       }));
     }
   };
 
-  const handleSaveNew = () => {
+  const handleSaveNew = async () => {
     if (!formData.owner || !formData.repo) {
       addToast({
         type: "error",
@@ -156,13 +166,23 @@ export default function SettingsPage() {
     };
 
     addRepo(newRepo);
+    // Auto sync immediately after adding to improve UX
+    const result = await syncArticles(newRepo);
     setIsAdding(false);
     setFormData(defaultFormData);
-    addToast({
-      type: "success",
-      title: "Added",
-      message: `Repository "${newRepo.name}" has been added`,
-    });
+    if (result.errors.length > 0) {
+      addToast({
+        type: "error",
+        title: "Sync failed",
+        message: result.errors[0],
+      });
+    } else {
+      addToast({
+        type: "success",
+        title: "Added & Synced",
+        message: `Repository "${newRepo.name}" added · +${result.added} updated ${result.updated}`,
+      });
+    }
   };
 
   const handleSaveEdit = () => {
@@ -337,9 +357,17 @@ export default function SettingsPage() {
                             <input
                               type="text"
                               value={formData.path}
-                              onChange={(e) =>
-                                setFormData({ ...formData, path: e.target.value })
-                              }
+                              onChange={(e) => {
+                                const newPath = e.target.value;
+                                const folderName = newPath
+                                  ? decodeURIComponent(newPath.split('/').pop() || newPath)
+                                  : "";
+                                setFormData({
+                                  ...formData,
+                                  path: newPath,
+                                  name: folderName || formData.repo,
+                                });
+                              }}
                               className="w-full px-4 py-2.5 text-[15px] border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-black text-gray-900 dark:text-white focus:outline-none focus:border-gray-400 dark:focus:border-gray-500 transition-colors"
                               placeholder="docs"
                             />
@@ -449,9 +477,17 @@ export default function SettingsPage() {
                           <input
                             type="text"
                             value={formData.path}
-                            onChange={(e) =>
-                              setFormData({ ...formData, path: e.target.value })
-                            }
+                            onChange={(e) => {
+                              const newPath = e.target.value;
+                              const folderName = newPath
+                                ? decodeURIComponent(newPath.split('/').pop() || newPath)
+                                : "";
+                              setFormData({
+                                ...formData,
+                                path: newPath,
+                                name: folderName || formData.repo,
+                              });
+                            }}
                             className="w-full px-4 py-2.5 text-[15px] border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-black text-gray-900 dark:text-white focus:outline-none focus:border-gray-400 dark:focus:border-gray-500 transition-colors"
                             placeholder="e.g. docs"
                           />
@@ -460,7 +496,7 @@ export default function SettingsPage() {
 
                       <div>
                         <label className="block text-[11px] font-semibold text-gray-500 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
-                          Display name (optional)
+                          Display name (auto from path)
                         </label>
                         <input
                           type="text"
@@ -469,8 +505,11 @@ export default function SettingsPage() {
                             setFormData({ ...formData, name: e.target.value })
                           }
                           className="w-full px-4 py-2.5 text-[15px] border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-black text-gray-900 dark:text-white focus:outline-none focus:border-gray-400 dark:focus:border-gray-500 transition-colors"
-                          placeholder={formData.repo || "e.g. React Docs"}
+                          placeholder={formData.repo || "Auto-filled from path"}
                         />
+                        <p className="text-[13px] text-gray-400 dark:text-gray-500 mt-1.5">
+                          Automatically uses the last folder name from path
+                        </p>
                       </div>
 
                       <div className="flex items-center gap-2 pt-2">
