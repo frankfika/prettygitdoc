@@ -12,7 +12,9 @@ import {
   FileText,
   FileCode2,
   File,
+  Share2,
 } from "lucide-react";
+import { useToastStore } from "@/lib/toastStore";
 
 interface NavigationProps {
   currentId: string;
@@ -34,6 +36,7 @@ function getFileIcon(fileType?: string) {
 export function Navigation({ currentId, contentRef }: NavigationProps) {
   const router = useRouter();
   const { articles, getAdjacentArticles } = useReaderStore();
+  const { addToast } = useToastStore();
   const { prev, next } = getAdjacentArticles(currentId);
   const [chapterListOpen, setChapterListOpen] = useState(false);
   const [readingProgress, setReadingProgress] = useState(0);
@@ -111,6 +114,24 @@ export function Navigation({ currentId, contentRef }: NavigationProps) {
       }
     }
   }, [chapterListOpen]);
+
+  const share = useCallback(() => {
+    const url = typeof window !== "undefined" ? window.location.href : "";
+    const title = currentArticle?.title || "Pretty GitDoc";
+    if (navigator.share) {
+      navigator
+        .share({ title, url })
+        .catch(() => {});
+    } else if (navigator.clipboard && url) {
+      navigator.clipboard.writeText(url).then(() => {
+        addToast({
+          type: "success",
+          title: "链接已复制",
+          message: "发送给对方即可在线查看",
+        });
+      });
+    }
+  }, [currentArticle, addToast]);
 
   return (
     <>
@@ -202,6 +223,21 @@ export function Navigation({ currentId, contentRef }: NavigationProps) {
               <span className="text-[11px] text-gray-400 dark:text-gray-500 tabular-nums">
                 {Math.round(readingProgress * 100)}%
               </span>
+              <button
+                onClick={share}
+                className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 text-xs text-gray-500 dark:text-gray-400 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                title="分享"
+              >
+                <Share2 className="w-3.5 h-3.5" />
+                <span>Share</span>
+              </button>
+              <button
+                onClick={share}
+                className="sm:hidden inline-flex items-center gap-1.5 px-2.5 py-1 text-xs text-gray-500 dark:text-gray-400 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                aria-label="Share"
+              >
+                <Share2 className="w-3.5 h-3.5" />
+              </button>
             </div>
 
             {next ? (
