@@ -1,12 +1,13 @@
 import withSerwistInit from "@serwist/next";
 
 const isDev = process.env.NODE_ENV === "development";
+const basePath = isDev ? "" : "/prettygitdoc";
 const withSerwist = withSerwistInit({
   swSrc: "app/sw.ts",
   swDest: "public/sw.js",
   // Avoid SW interference in development
   disable: isDev,
-  register: !isDev,
+  register: false,
 });
 
 /** @type {import('next').NextConfig} */
@@ -22,6 +23,10 @@ const nextConfig = {
         hostname: "github.com",
       },
     ],
+  },
+  ...(basePath ? { basePath } : {}),
+  publicRuntimeConfig: {
+    BASE_PATH: basePath,
   },
   webpack: (config) => {
     // react-pdf requires canvas on server side, exclude it

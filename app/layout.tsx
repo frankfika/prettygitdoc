@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { ToastContainer } from "@/components/ui/Toast";
+import RegisterPWA from "@/components/pwa/RegisterPWA";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -50,6 +51,7 @@ export default function RootLayout({
       >
         {children}
         <ToastContainer />
+        <RegisterPWA />
       </body>
     </html>
   );
