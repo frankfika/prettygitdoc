@@ -2,17 +2,33 @@
 
 import React from "react";
 import { useReaderStore } from "@/lib/store";
-import { Menu, RefreshCw, Settings, Moon, Sun, Monitor, Search } from "lucide-react";
+import { Menu, RefreshCw, Settings, Moon, Sun, Monitor, Search, Download, Info } from "lucide-react";
 import Link from "next/link";
 import { SearchModal, useSearchShortcut } from "./SearchModal";
+import { useToastStore } from "@/lib/toastStore";
+import { useSearchParams } from "next/navigation";
+
+declare global {
+  interface BeforeInstallPromptEvent extends Event {
+    prompt: () => Promise<void>;
+    userChoice: Promise<{ outcome: "accepted" | "dismissed"; platform: string }>;
+  }
+}
 
 export function Header() {
   const { sidebarOpen, setSidebarOpen, isSyncing, syncAllArticles, syncProgress, settings, updateSettings } = useReaderStore();
   const [searchOpen, setSearchOpen] = React.useState(false);
   const [isMac, setIsMac] = React.useState(true);
+  const [installPrompt, setInstallPrompt] = React.useState<BeforeInstallPromptEvent | null>(null);
+  const [canInstall, setCanInstall] = React.useState(false);
+  const { addToast } = useToastStore();
+  const searchParams = useSearchParams();
+  const [showInstallBanner, setShowInstallBanner] = React.useState(false);
+  const [isIOS, setIsIOS] = React.useState(false);
 
   React.useEffect(() => {
     setIsMac(navigator.platform?.toUpperCase().includes("MAC") ?? /Mac/i.test(navigator.userAgent));
+    setIsIOS(/iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream);
   }, []);
 
   useSearchShortcut(() => setSearchOpen(true));
@@ -25,6 +41,63 @@ export function Header() {
 
   const toggleTheme = () => {
     updateSettings({ theme: nextThemeMap[settings.theme] });
+  };
+
+  React.useEffect(() => {
+    const handleBeforeInstall = (e: Event) => {
+      const ev = e as BeforeInstallPromptEvent;
+      ev.preventDefault();
+      setInstallPrompt(ev);
+      setCanInstall(true);
+    };
+    const handleInstalled = () => {
+      setInstallPrompt(null);
+      setCanInstall(false);
+      addToast({ type: "success", title: "已安装", message: "Pretty GitDoc 已添加到设备" });
+    };
+    window.addEventListener("beforeinstallprompt", handleBeforeInstall);
+    window.addEventListener("appinstalled", handleInstalled);
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handleBeforeInstall);
+      window.removeEventListener("appinstalled", handleInstalled);
+    };
+  }, [addToast]);
+
+  const triggerInstall = async () => {
+    if (!installPrompt) return;
+    await installPrompt.prompt();
+    try {
+      const choice = await installPrompt.userChoice;
+      if (choice.outcome === "accepted") {
+        addToast({ type: "success", title: "安装开始", message: "稍后从主屏打开应用" });
+      }
+    } finally {
+      setInstallPrompt(null);
+      setCanInstall(false);
+    }
+  };
+
+  // Install banner logic: show when用户从分享进入或首次访问，且未关闭
+  React.useEffect(() => {
+    const dismissed = localStorage.getItem("pgd-install-banner-dismissed") === "1";
+    const fromShare = !!searchParams?.get("share");
+    if (!dismissed && (fromShare || canInstall || isIOS)) {
+      setShowInstallBanner(true);
+    }
+  }, [searchParams, canInstall, isIOS]);
+
+  const dismissBanner = () => {
+    localStorage.setItem("pgd-install-banner-dismissed", "1");
+    setShowInstallBanner(false);
+  };
+
+  const iosGuide = () => {
+    addToast({
+      type: "info",
+      title: "iOS 安装提示",
+      message: "Safari 分享按钮 → 添加到主屏幕，即可离线使用",
+      duration: 6000,
+    });
   };
 
   React.useEffect(() => {
@@ -106,6 +179,16 @@ export function Header() {
               <ThemeIcon />
             </button>
 
+            {canInstall && (
+              <button
+                onClick={triggerInstall}
+                className="p-2.5 rounded-xl text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
+                title="Install App"
+              >
+                <Download className="w-4 h-4" />
+              </button>
+            )}
+
             <Link
               href="/settings"
               className="p-2.5 rounded-xl text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
@@ -125,6 +208,44 @@ export function Header() {
           </div>
         )}
       </header>
+
+      {/* Install banner */}
+      {showInstallBanner && (
+        <div className="sticky top-16 z-30 bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300 border-b border-blue-100/60 dark:border-blue-800/50">
+          <div className="flex items-center justify-between gap-3 px-4 sm:px-6 py-2">
+            <div className="flex items-center gap-2 min-w-0">
+              <Info className="w-4 h-4" />
+              <span className="text-[13px] truncate">
+                安装 Pretty GitDoc 到设备，离线访问更流畅
+              </span>
+            </div>
+            <div className="flex items-center gap-1.5 flex-shrink-0">
+              {isIOS ? (
+                <button
+                  onClick={iosGuide}
+                  className="px-2.5 py-1 text-xs rounded-md bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+                >
+                  查看指引
+                </button>
+              ) : (
+                <button
+                  onClick={triggerInstall}
+                  disabled={!canInstall}
+                  className="px-2.5 py-1 text-xs rounded-md bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-40 transition-colors"
+                >
+                  Install
+                </button>
+              )}
+              <button
+                onClick={dismissBanner}
+                className="px-2.5 py-1 text-xs rounded-md text-blue-700 dark:text-blue-300 hover:bg-blue-100/60 dark:hover:bg-blue-900/30 transition-colors"
+              >
+                关闭
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <SearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
     </>
