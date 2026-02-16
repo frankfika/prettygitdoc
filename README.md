@@ -96,13 +96,37 @@ graph LR
 
 ## 安装指南 (Installation)
 
-### 选项 A: 在线体验 (推荐)
+### 选项 A: 从 Releases 下载 (推荐)
 
-访问在线演示地址，无需安装即可体验完整功能：
+前往 GitHub Releases 下载对应平台的安装包：
+
+| 平台 | 格式 | 说明 |
+| --- | --- | --- |
+| __macOS__ | `.dmg` | 支持 Apple Silicon & Intel |
+| __Windows__ | `.msi` / `.exe` | 安装包或便携版 |
+| __Linux__ | `.deb` / `.AppImage` | Debian/Ubuntu 或通用 |
+
+> **下载地址**: [GitHub Releases](https://github.com/frankfika/prettygitdoc/releases)
+
+### 选项 B: PWA 安装 (移动端推荐)
+
+1. 在手机浏览器中打开:https://prettygitdoc.vercel.app
+2. 点击浏览器菜单中的"添加到主屏幕"(iOS) 或"安装应用"(Android)
+3. 像原生 App 一样使用，支持离线访问
+
+> **iOS 用户**: Safari → 分享 → 添加到主屏幕
+
+### 选项 C: 在线体验
+
+无需安装，直接访问在线演示地址：
 
 > **在线地址**: https://prettygitdoc.vercel.app
 
-### 选项 B: 本地开发
+### 选项 D: Vercel 一键部署
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/frankfika/prettygitdoc)
+
+### 选项 E: 本地开发
 
 ```bash
 # 克隆仓库
@@ -113,30 +137,8 @@ cd prettygitdoc
 npm install
 
 # 启动开发服务器
-npm run dev
+npm run dev# http://localhost:3000
 ```
-
-> **访问地址**: http://localhost:3001
-
-### 选项 C: 生产部署
-
-```bash
-# 构建生产版本
-npm run build
-
-# 启动生产服务器
-PORT=3002 npm run start
-```
-
-> **访问地址**: http://localhost:3002
-
-### 选项 D: Vercel 一键部署
-
-1. 点击下方按钮一键部署到 Vercel
-2. 授权 Vercel 访问您的 GitHub
-3. 自动完成构建与部署
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/frankfika/prettygitdoc)
 
 ## 🔌 快速接入示例
 
