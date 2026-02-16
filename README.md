@@ -102,12 +102,17 @@ graph LR
 
 | 平台 | 格式 | 说明 |
 | --- | --- | --- |
-| __macOS (Apple Silicon)__ | `.dmg` / `.app` | M1/M2/M3 芯片 |
-| __macOS (Intel)__ | `.dmg` / `.app` | Intel 芯片 |
-| __Windows__ | `.msi` / `.exe` | 安装包或便携版 |
+| __macOS (Apple Silicon)__ | `.dmg` | M1/M2/M3 芯片 |
+| __macOS (Intel)__ | `.dmg` | Intel 芯片 |
+| __Windows__ | `.exe` / `.msi` | 安装包或便携版 |
 | __Linux__ | `.deb` / `.AppImage` | Debian/Ubuntu 或通用 |
 
 > **下载地址**: [GitHub Releases](https://github.com/frankfika/prettygitdoc/releases)
+
+**macOS 用户首次安装后需要运行**（绕过 Gatekeeper 检查）：
+```bash
+xattr -cr /Applications/Pretty\ GitDoc.app
+```
 
 ### 选项 B: PWA 安装 (移动端推荐)
 
