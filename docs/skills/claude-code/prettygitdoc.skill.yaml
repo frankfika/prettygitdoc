@@ -1,0 +1,68 @@
+name: Pretty GitDoc
+version: 0.1.0
+description: |
+  操作 Pretty GitDoc 的常用技能集合，用于本地开发、构建、检查与发布前准备。
+  适配 Claude Code Skills（示例骨架），可按需扩展自定义命令。
+
+skills:
+  - id: dev:start
+    title: 启动开发服务器
+    when:
+      - files_changed: ["**/*"]
+    run:
+      shell: |
+        npm install
+        npm run dev
+    notes: |
+      启动后在本地浏览器打开 http://localhost:3001/ 进行开发预览。
+
+  - id: build:prod
+    title: 构建生产版本
+    run:
+      shell: |
+        npm run build
+    notes: |
+      产物位于 .next，配合 `next start` 或 Vercel 部署。
+
+  - id: start:prod
+    title: 启动生产服务器
+    run:
+      shell: |
+        PORT=${PORT:-3002} npm run start
+    notes: |
+      默认端口 3002，可通过环境变量 PORT 覆盖。
+
+  - id: lint:typecheck
+    title: Lint 与类型检查
+    run:
+      shell: |
+        npm run lint || true
+        npx tsc --noEmit
+    notes: |
+      若需严格失败策略，可移除 `|| true`。
+
+  - id: pwa:check
+    title: PWA 基本校验清单
+    run:
+      shell: |
+        echo "检查 manifest 与 sw.js 是否存在"
+        test -f public/manifest.json && echo "✓ manifest.json" || echo "✗ manifest.json 缺失"
+        test -f public/sw.js && echo "✓ sw.js" || echo "✗ sw.js 缺失（构建后生成）"
+        grep -q '"display": "standalone"' public/manifest.json && echo "✓ display=standalone" || echo "✗ manifest.display 建议 standalone"
+    notes: |
+      更全面的 Lighthouse/PWABuilder 校验可在浏览器或 CI 中执行。
+
+  - id: release:prep
+    title: 发布前检查（草案）
+    run:
+      shell: |
+        npm ci
+        npm run build
+        echo "✅ 构建完成，下一步："
+        echo "  - Web: 推送到 GitHub，Vercel 自动部署"
+        echo "  - Android: 使用 PWABuilder 生成 TWA 包"
+        echo "  - iOS: 使用 Capacitor 导出 Xcode 工程"
+        echo "  - 桌面: 使用 Tauri 打包"
+    notes: |
+      该步骤不直接发布，只做产物与流程准备提示。
+
