@@ -96,13 +96,14 @@ graph LR
 
 ## 安装指南 (Installation)
 
-### 选项 A: 从 Releases 下载 (推荐)
+### 选项 A: 从 Releases 下载桌面版
 
 前往 GitHub Releases 下载对应平台的安装包：
 
 | 平台 | 格式 | 说明 |
 | --- | --- | --- |
-| __macOS__ | `.dmg` | 支持 Apple Silicon & Intel |
+| __macOS (Apple Silicon)__ | `.dmg` / `.app` | M1/M2/M3 芯片 |
+| __macOS (Intel)__ | `.dmg` / `.app` | Intel 芯片 |
 | __Windows__ | `.msi` / `.exe` | 安装包或便携版 |
 | __Linux__ | `.deb` / `.AppImage` | Debian/Ubuntu 或通用 |
 
@@ -110,15 +111,21 @@ graph LR
 
 ### 选项 B: PWA 安装 (移动端推荐)
 
-1. 在手机浏览器中打开:https://prettygitdoc.vercel.app
-2. 点击浏览器菜单中的"添加到主屏幕"(iOS) 或"安装应用"(Android)
-3. 像原生 App 一样使用，支持离线访问
+Pretty GitDoc 是一个 PWA 应用，可在任何设备上像原生 App 一样安装使用：
 
-> **iOS 用户**: Safari → 分享 → 添加到主屏幕
+| 平台 | 安装方式 |
+| --- | --- |
+| __iOS__ | Safari → 分享 → 添加到主屏幕 |
+| __Android__ | Chrome → 菜单 → 安装应用 / 添加到主屏幕 |
+
+**安装步骤**:
+1. 在浏览器中打开: https://prettygitdoc.vercel.app
+2. 根据上表方式添加到设备
+3. 像原生 App 一样使用，支持离线访问
 
 ### 选项 C: 在线体验
 
-无需安装，直接访问在线演示地址：
+无需安装，直接访问：
 
 > **在线地址**: https://prettygitdoc.vercel.app
 
@@ -197,31 +204,29 @@ prettygitdoc/
 
 ## 🚀 构建与发布 (Build & Deploy)
 
-### Web 部署 (Vercel 推荐)
-
-- Vercel 导入仓库 → 自动识别 Next.js → 一键部署
-- 自动 HTTPS、CDN 加速、预览部署
-
-### Android (TWA)
+### PWA 部署 (Vercel 推荐)
 
 ```bash
-# 使用 PWABuilder 生成 TWA
-# 1. 访问 https://pwabuilder.com
-# 2. 输入您的 PWA 地址
-# 3. 下载 Android 包
+# 构建生产版本
+npm run build
+
+# 启动生产服务器
+npm run start
 ```
 
-> **注意**: 需配置 `/.well-known/assetlinks.json`
+Vercel 一键部署会自动：
+- 识别 Next.js 框架
+- 配置 HTTPS 和 CDN
+- 启用 PWA 缓存策略
+- 生成 Service Worker
 
-### iOS
+### 自托管部署
 
-- 直接使用"添加到主屏幕" (A2HS)
-- 上架 App Store 需使用 Capacitor 封装
-
-### 桌面 (macOS/Windows)
-
-- 推荐使用 Tauri 封装
-- GitHub Actions 自动发布到 Releases
+```bash
+# Docker 构建
+docker build -t prettygitdoc .
+docker run -p 3000:3000 prettygitdoc
+```
 
 ## 📝 开发者与社区
 

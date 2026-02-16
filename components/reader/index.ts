@@ -1,5 +1,6 @@
 export { Sidebar } from "./Sidebar";
 export { Header } from "./Header";
+export { HeaderWithSuspense } from "./HeaderWithSuspense";
 export { ArticleList } from "./ArticleList";
 export { Navigation } from "./Navigation";
 export { EmptyState } from "./EmptyState";

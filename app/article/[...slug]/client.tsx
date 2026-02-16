@@ -1,10 +1,9 @@
 "use client";
 
 import React, { useEffect, useRef, useCallback, useState } from "react";
-import { useParams } from "next/navigation";
 import { useReaderStore } from "@/lib/store";
 import { getCachedArticle } from "@/lib/cache";
-import { Sidebar, Header, Navigation, ArticleBreadcrumb, TableOfContents, MarkdownSkeleton } from "@/components/reader";
+import { Sidebar, HeaderWithSuspense, Navigation, ArticleBreadcrumb, TableOfContents, MarkdownSkeleton } from "@/components/reader";
 import { MarkdownRenderer, CodeFileRenderer } from "@/components/markdown";
 import dynamic from "next/dynamic";
 import { convertImagePaths } from "@/lib/github";
@@ -14,9 +13,11 @@ const DocumentViewer = dynamic(
   { ssr: false, loading: () => <div className="flex items-center justify-center py-20 text-gray-400">Loading...</div> }
 );
 
-export default function ArticlePage() {
-  const params = useParams();
-  const id = params?.slug as string;
+interface ArticleClientProps {
+  id: string;
+}
+
+export default function ArticleClient({ id }: ArticleClientProps) {
   const contentRef = useRef<HTMLDivElement>(null);
   const scrollTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
   const [isArticleLoading, setIsArticleLoading] = useState(true);
@@ -132,7 +133,7 @@ export default function ArticlePage() {
       <div className="flex min-h-screen">
         <Sidebar />
         <div className="flex-1 flex flex-col min-w-0 bg-gray-50/50 dark:bg-black">
-          <Header />
+          <HeaderWithSuspense />
           <main className="flex-1 p-6 sm:p-8 lg:p-10">
             <div className="max-w-3xl mx-auto">
               <MarkdownSkeleton />
@@ -148,7 +149,7 @@ export default function ArticlePage() {
       <div className="flex min-h-screen">
         <Sidebar />
         <div className="flex-1 flex flex-col min-w-0 bg-gray-50/50 dark:bg-black">
-          <Header />
+          <HeaderWithSuspense />
           <main className="flex-1 flex items-center justify-center">
             <div className="text-center px-4">
               <p className="text-gray-900 dark:text-white font-semibold text-xl mb-2">Article not found</p>
@@ -175,7 +176,7 @@ export default function ArticlePage() {
       <Sidebar />
 
       <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden bg-gray-50/50 dark:bg-black">
-        <Header />
+        <HeaderWithSuspense />
 
         <div
           ref={contentRef}

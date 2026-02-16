@@ -7,7 +7,6 @@ export default function RegisterPWA() {
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (!("serviceWorker" in navigator)) return;
-    // @ts-ignore
     if (window.serwist === undefined) return;
 
     const { publicRuntimeConfig } = getConfig() || {};
@@ -15,8 +14,7 @@ export default function RegisterPWA() {
     const url = `${basePath || ""}/sw.js`;
     const scope = `${basePath || ""}/`;
     try {
-      // @ts-ignore
-      window.serwist.register({ url, scope }).catch(() => {});
+      window.serwist?.register({ url, scope }).catch(() => {});
     } catch {
       // noop
     }

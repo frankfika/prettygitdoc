@@ -28,7 +28,7 @@ export function Header() {
 
   React.useEffect(() => {
     setIsMac(navigator.platform?.toUpperCase().includes("MAC") ?? /Mac/i.test(navigator.userAgent));
-    setIsIOS(/iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream);
+    setIsIOS(/iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as unknown as { MSStream?: unknown }).MSStream);
   }, []);
 
   useSearchShortcut(() => setSearchOpen(true));

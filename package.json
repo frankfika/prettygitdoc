@@ -5,9 +5,13 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "export": "next build",
     "start": "next start",
     "lint": "next lint",
-    "screens": "node scripts/capture-screenshots.mjs"
+    "screens": "node scripts/capture-screenshots.mjs",
+    "tauri": "tauri",
+    "tauri:dev": "tauri dev",
+    "tauri:build": "tauri build"
   },
   "dependencies": {
     "@serwist/cacheable-response": "^9.5.6",
@@ -34,13 +38,15 @@
     "zustand": "^5.0.11"
   },
   "devDependencies": {
+    "@tauri-apps/api": "^2.10.1",
+    "@tauri-apps/cli": "^2.10.0",
     "@types/highlight.js": "^9.12.4",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
-    "playwright": "^1.44.0",
     "eslint": "^8",
     "eslint-config-next": "14.2.35",
+    "playwright": "^1.44.0",
     "postcss": "^8",
     "sharp": "^0.34.5",
     "tailwindcss": "^3.4.1",
